@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fullscreen Clock</title>
+  <style>
+    :root {
+      --background: #1b1b1a;
+      --foreground: #ffffff;
+      --button-bg: #333;
+      --button-hover: #444;
+      --font: 'Segoe UI', Roboto, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: var(--font);
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #time {
+      font-size: 12vw;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+    }
+
+    #controls {
+      margin-top: 2em;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+    }
+
+    input[type="time"] {
+      font-size: 1.5vw;
+      padding: 0.5em 1em;
+      border: none;
+      border-radius: 5px;
+      background: #222;
+      color: var(--foreground);
+    }
+
+    button {
+      font-size: 1.2vw;
+      background-color: var(--button-bg);
+      color: var(--foreground);
+      border: none;
+      border-radius: 5px;
+      padding: 0.6em 1.2em;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--button-hover);
+    }
+
+    #toggle-controls {
+      position: absolute;
+      bottom: 1em;
+      right: 1em;
+      background: transparent;
+      font-size: 1.5vw;
+      opacity: 0.1;
+      border: none;
+      padding: 0.2em 0.4em;
+    }
+
+    #toggle-controls:hover {
+      opacity: 0.7;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="time">--:--:--</div>
+
+  <div id="controls">
+    <input type="time" id="manualTime" step="1">
+    <button onclick="useManualTime()">Set Time</button>
+    <button onclick="resetTime()">Reset to System Time</button>
+  </div>
+
+  <button id="toggle-controls" onclick="toggleControls()">🛠️</button>
+
+  <script>
+    let override = false;
+    let manualTime = null;
+
+    function updateTime() {
+      const now = override && manualTime ? new Date(manualTime) : new Date();
+      const timeStr = now.toLocaleTimeString('en-GB');
+      document.getElementById('time').textContent = timeStr;
+
+      if (override && manualTime) {
+        manualTime = new Date(manualTime.getTime() + 1000);
+      }
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    function toggleControls() {
+      const controls = document.getElementById('controls');
+      const btn = document.getElementById('toggle-controls');
+      const showing = controls.style.display === 'flex';
+      controls.style.display = showing ? 'none' : 'flex';
+      btn.textContent = showing ? '🛠️' : '❌';
+    }
+
+    function useManualTime() {
+      const input = document.getElementById('manualTime').value;
+      if (input) {
+        const [hours, minutes, seconds] = input.split(':').map(Number);
+        const now = new Date();
+        manualTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds || 0);
+        override = true;
+      }
+    }
+
+    function resetTime() {
+      override = false;
+      manualTime = null;
+    }
+  </script>
+</body>
+</html>
